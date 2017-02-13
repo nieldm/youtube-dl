@@ -1731,8 +1731,7 @@ class GenericIE(InfoExtractor):
             })
             return info_dict
 
-        webpage = self._webpage_read_content(
-            full_response, url, video_id, prefix=first_bytes)
+        webpage = self._webpage_read_content_with_js(url)
 
         self.report_extraction(video_id)
 
@@ -1925,7 +1924,14 @@ class GenericIE(InfoExtractor):
                 'ie_key': 'Wistia',
                 'uploader': video_uploader,
             }
-
+        match = re.search(r'<video.*id=["\']wistia.*src=["\'](.*)["\']', webpage)
+        if match:
+            return {
+                '_type': 'url_transparent',
+                'url': match.group('url'),
+                'ie_key': 'Wistia',
+                'uploader': video_uploader,
+            }
         match = re.search(
             r'''(?sx)
                 <script[^>]+src=(["'])(?:https?:)?//fast\.wistia\.com/assets/external/E-v1\.js\1[^>]*>.*?

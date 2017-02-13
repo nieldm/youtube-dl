@@ -62,6 +62,9 @@ from ..utils import (
     urljoin,
 )
 
+from contextlib import closing
+from selenium.webdriver import Firefox # pip install selenium
+from selenium.webdriver.support.ui import WebDriverWait
 
 class InfoExtractor(object):
     """Information Extractor class.
@@ -456,6 +459,17 @@ class InfoExtractor(object):
                 encoding = 'utf-8'
 
         return encoding
+
+    def _webpage_read_content_with_js(self, url):
+        with closing(Firefox()) as browser:
+            browser.get(url)
+            # wait for the page to load
+            WebDriverWait(browser, timeout=10).until(
+                lambda x: x.find_element_by_tag_name('video'))
+            # store it to string variable
+            webpage = browser.page_source
+            browser.close()
+            return webpage
 
     def _webpage_read_content(self, urlh, url_or_request, video_id, note=None, errnote=None, fatal=True, prefix=None, encoding=None):
         content_type = urlh.headers.get('Content-Type', '')
